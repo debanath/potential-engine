@@ -5,6 +5,7 @@ html {
   line-height: 1.75;
   font-size: 1.25em;
   font-family: sans-serif;
+  background-color: #F8F4E3;
 }
 
 h1,
@@ -21,4 +22,44 @@ ul,
 ol {
   margin-bottom: 2em;
   color: #1d1d1d;
+}
+
+/* Navbar */
+
+nav{
+  background-color: #2A2B2A;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+nav menu{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+nav a{
+  color: #FF8966;
+  text-decoration: none;
+}
+
+nav a:hover{
+  text-decoration: underline;
+}
+
+/* code block */
+
+pre{
+  background-color: hsla(120, 1%, 17%, 0.744);
+  padding: 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+code{
+  color: #ff8a66f3;
+  font-size: 1.2rem;
+  font-family: monospace;
 }

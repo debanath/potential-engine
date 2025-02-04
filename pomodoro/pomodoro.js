@@ -1,102 +1,111 @@
-let isRunning = false; // Tracks if timer is currently running
-let timeLeft; // Remaining time in seconds
-let workTime = 25; // Work duration in minutes
-let breakTime = 5; // Break duration in minutes
-let isWorkTime = true; // Tracks if we're working or in break mode
-let timerId = null; // Hold the interval id for the timer
+const PomodoroTimer = {
+  isRunning: false,
+  timeLeft: 0,
+  workTime: 25,
+  breakTime: 5,
+  isWorkTime: true,
+  timerId: null,
 
-const minutesDisplay = document.getElementById("minutes");
-const secondsDisplay = document.getElementById("seconds");
-const startButton = document.getElementById("start");
-const pauseButton = document.getElementById("pause");
-const resetButton = document.getElementById("reset");
-const workTimeInput = document.getElementById("wtime");
-const breakTimeInput = document.getElementById("btime");
-const statusDisplay = document.getElementById("status");
-const progressBar = document.getElementById("progress");
+  elements: {
+    minutesDisplay: document.getElementById("minutes"),
+    secondsDisplay: document.getElementById("seconds"),
+    startButton: document.getElementById("start"),
+    pauseButton: document.getElementById("pause"),
+    resetButton: document.getElementById("reset"),
+    workTimeInput: document.getElementById("wtime"),
+    breakTimeInput: document.getElementById("btime"),
+    statusDisplay: document.getElementById("status"),
+    progressBar: document.getElementById("progress"),
+  },
 
-// Start with work time
-function initTimer() {
-  timeLeft = workTime * 60; // mins to seconds
-  updateDisplay();
-}
+  init() {
+    this.timeLeft = this.workTime * 60;
+    this.updateDisplay();
+    this.setupEventListeners();
+    this.elements.pauseButton.disabled = true;
+  },
 
-// Update the timer display
-function updateDisplay() {
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  minutesDisplay.textContent = minutes.toString().padStart(2, "0");
-  secondsDisplay.textContent = seconds.toString().padStart(2, "0");
+  setupEventListeners() {
+    const { startButton, pauseButton, resetButton, workTimeInput, breakTimeInput } = this.elements;
 
-  updateProgressBar();
-}
+    startButton.addEventListener("click", () => this.startTimer());
+    pauseButton.addEventListener("click", () => this.pauseTimer());
+    resetButton.addEventListener("click", () => this.resetTimer());
 
-// Update the progress bar
-function updateProgressBar() {
-  const totalTime = isWorkTime ? workTime * 60 : breakTime * 60;
-  const progress = ((totalTime - timeLeft) / totalTime) * 100;
+    workTimeInput.addEventListener("change", (event) => {
+      this.workTime = parseInt(event.target.value);
+      if (this.isWorkTime) this.resetTimer();
+    });
 
-  progressBar.style.width = `${progress}%`;
-  progressBar.style.backgroundColor = isWorkTime ? "#4caf50" : "#2196f3";
-}
+    breakTimeInput.addEventListener("change", (event) => {
+      this.breakTime = parseInt(event.target.value);
+      if (!this.isWorkTime) this.resetTimer();
+    });
+  },
 
-// Start the timer
-function startTimer() {
-  if (timerId === null) {
-    timerId = setInterval(() => {
-      timeLeft--;
-      updateDisplay();
+  startTimer() {
+    if (!this.timerId) {
+      this.timerId = setInterval(() => this.tick(), 1000);
+    }
+    this.toggleButtons(true);
+  },
 
-      if (timeLeft === 0) {
-        switchMode();
-      }
-    }, 1000);
-  }
+  pauseTimer() {
+    clearInterval(this.timerId);
+    this.timerId = null;
+    this.toggleButtons(false);
+    this.updateProgressBar(true); // Indicate paused state
+  },
 
-  startButton.disabled = true;
-  pauseButton.disabled = false;
-}
+  resetTimer() {
+    this.pauseTimer();
+    this.isWorkTime = true;
+    this.elements.statusDisplay.textContent = "Work";
+    this.timeLeft = this.workTime * 60;
+    this.updateDisplay();
+  },
 
-function pauseTimer() {
-  clearInterval(timerId);
-  timerId = null;
+  tick() {
+    this.timeLeft--;
+    this.updateDisplay();
 
-  startButton.disabled = false;
-  pauseButton.disabled = true;
-}
+    if (this.timeLeft === 0) {
+      this.switchMode();
+    }
+  },
 
-function resetTimer() {
-  pauseTimer();
-  isWorkTime = true;
-  statusDisplay.textContent = "Work";
-  initTimer();
-}
+  switchMode() {
+    this.isWorkTime = !this.isWorkTime;
+    this.timeLeft = (this.isWorkTime ? this.workTime : this.breakTime) * 60;
+    this.elements.statusDisplay.textContent = this.isWorkTime ? "Work" : "Play!!!";
+    this.updateDisplay();
+  },
 
-function switchMode() {
-  isWorkTime = !isWorkTime; // toggle between work and break
+  updateDisplay() {
+    const minutes = Math.floor(this.timeLeft / 60);
+    const seconds = this.timeLeft % 60;
+    this.elements.minutesDisplay.textContent = minutes.toString().padStart(2, "0");
+    this.elements.secondsDisplay.textContent = seconds.toString().padStart(2, "0");
+    this.updateProgressBar();
+  },
 
-  timeLeft = (isWorkTime ? workTime : breakTime) * 60;
-  statusDisplay.textContent = isWorkTime ? "Work" : "Play!!!";
-  updateDisplay();
-}
+  updateProgressBar(isPaused = false) {
+    const totalTime = this.isWorkTime ? this.workTime * 60 : this.breakTime * 60;
+    const progress = ((totalTime - this.timeLeft) / totalTime) * 100;
 
-startButton.addEventListener("click", startTimer);
-pauseButton.addEventListener("click", pauseTimer);
-resetButton.addEventListener("click", resetTimer);
+    this.elements.progressBar.style.width = `${progress}%`;
+    this.elements.progressBar.style.backgroundColor = isPaused
+      ? "#ff0000" // Red when paused
+      : this.isWorkTime
+      ? "#4caf50" // Green for work
+      : "#2196f3"; // Blue for break
+  },
 
-workTimeInput.addEventListener("change", (event) => {
-  workTime = parseInt(event.target.value);
-  if (isWorkTime) {
-    resetTimer();
-  }
-});
+  toggleButtons(isRunning) {
+    this.elements.startButton.disabled = isRunning;
+    this.elements.pauseButton.disabled = !isRunning;
+  },
+};
 
-breakTimeInput.addEventListener("change", (event) => {
-  breakTime = parseInt(event.target.value);
-  if (!isWorkTime) {
-    resetTimer();
-  }
-});
-
-pauseButton.disabled = true;
-initTimer();
+// Initialize the timer
+PomodoroTimer.init();

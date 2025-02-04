@@ -18,5 +18,28 @@
       </menu>
     </nav>
     <h1>TODO Pomodoro Timer</h1>
+
+    <div class="pomodoro">
+      <div class="Ptimer">
+        <span id="minute">25</span>:<span id="seconds">00</span>
+      </div>
+      <div class="Pbutton">
+        <button id="start">Start</button>
+        <button id="pause">Pause</button>
+        <button id="reset">Reset</button>
+      </div>
+      <div class="Psettings">
+        <label for="wtime">Work Time</label>
+        <input type="number" id="wtime" value="25" min="1" max="59">
+        <label for="btime">Break Time</label>
+        <input type="number" id="btime" value="5" min="1" max="15">
+      </div>
+      <div class="Pstatus">
+        <span id="status">Work</span>
+      </div>
+      <div class="Pprogress">
+        <div id="progress"></div>
+      </div>
+    </div>
   </body>
 </html>
